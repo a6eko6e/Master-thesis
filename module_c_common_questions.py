@@ -24,7 +24,7 @@ def ask_common_questions(display_output, ask_user):
         return 0, None
 
     commonscore = 0
-    special_urgency = None  # 特別ルール適用結果を記録する
+    special_urgency = None  
 
     for row in question_list:
         question_text = row["question_text"]
@@ -65,13 +65,11 @@ def ask_common_questions(display_output, ask_user):
         selected_option = options[user_answer - 1]
         selected_option_name = selected_option['option']
 
-        # 特別ルールを確認
-        if special_urgency is None:  # 特別ルール未適用の場合のみ確認
+        if special_urgency is None: 
             special_urgency = apply_special_rule(selected_option_name)
             if special_urgency:
                 display_output(f"特別ルールが適用されました: 緊急性は {special_urgency} です。")
 
-        # 通常スコア計算
         severe_score = int(selected_option['severe_score'])
         if commonscore == 0 and severe_score == 1:
             commonscore += severe_score
