@@ -17,7 +17,6 @@ def find_level2_category(symptom, display_output):
         display_output("関連する状態像が見つかりませんでした。")
         return []
 
-    # 全カテゴリのログ表示（親子関係を無視）
     all_categories = {row["category"] for row in result}
 
     categories = []
@@ -35,7 +34,6 @@ def find_level2_category(symptom, display_output):
             if category not in categories:
                 categories.append(category)
 
-    # 親カテゴリ優先でリストを構築
     for parent, children in parent_child_mapping.items():
         if parent in categories:
             continue
@@ -53,7 +51,6 @@ def ask_category_questions(categories, current_score, most_similar, display_outp
 
     all_questions = []
 
-    # 種類Aの質問を取得（必ず実行）
     for category in categories:
         query_questions_a = """
         MATCH (cat:Symptom_Type {Name: $category_name})-[:QUESTIONLIST]->(q:Question)
@@ -63,7 +60,6 @@ def ask_category_questions(categories, current_score, most_similar, display_outp
         question_nodes_a = graph.run(query_questions_a, category_name=category).data()
         all_questions.extend(question_nodes_a)
 
-    # 種類Bの質問を取得（most_similar と一致する Symptom のみ実行）
     if most_similar:
         query_questions_b = """
         MATCH (sym:Symptom {Name: $most_similar})-[:HAS_SEVERESYMPTOM]->(s:Severe_symptom)
@@ -73,7 +69,6 @@ def ask_category_questions(categories, current_score, most_similar, display_outp
         question_nodes_b = graph.run(query_questions_b, most_similar=most_similar).data()
         all_questions.extend(question_nodes_b)
 
-    # 質問の重複を排除
     unique_questions = {row['question_text']: row for row in all_questions}.values()
 
     asked_questions = set()
@@ -82,7 +77,7 @@ def ask_category_questions(categories, current_score, most_similar, display_outp
         question_id = question["question_id"]
 
         if question_text in asked_questions:
-            continue  # 重複質問はスキップ
+            continue  
         asked_questions.add(question_text)
 
         display_output(f"質問: {question_text}")
@@ -93,7 +88,6 @@ def ask_category_questions(categories, current_score, most_similar, display_outp
             else:
                 display_output("無効な入力です。「yes」または「no」で答えてください。")
 
-        # スコアの計算
         query_score = """
         MATCH (s:Severe_symptom)
         WHERE s.question_id = $question_id
