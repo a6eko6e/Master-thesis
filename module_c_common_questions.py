@@ -2,7 +2,7 @@ from module_f_neo4j import graph
 
 def apply_special_rule(selected_option_name):
     query = """
-    MATCH (c:Consult {Name: $option_name})-[:IS_A]->(u:Urgency)
+    MATCH (c:Consult {Name: $option_name})-[:RELATED_TO]->(u:Urgency)
     RETURN u.Name AS urgency_level
     """
     result = graph.run(query, option_name=selected_option_name).data()
